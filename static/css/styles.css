@@ -1,0 +1,16 @@
+button {
+  width: 100px;
+  position: absolute;
+  margin: auto;
+  left: 47vw;
+}
+
+html {
+  background-color: #00ffd8;
+}
+
+div {
+	position: absolute;
+	margin: auto;
+	left: 45vw;
+}
