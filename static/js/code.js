@@ -1,78 +1,75 @@
-var randomNames = [];
-var allNames = [];
-var amountOfPeople = 1;
-
-
-function enterButton() {
-
-  randomNames = [];
-  allNames = [];
-
-  for (var names = 1; names <= amountOfPeople; names++) {
-    allNames.push($("#text" + names).val());
-  }
-
-  for (var i = 0; i < amountOfPeople; i++) {
-    var arrayNumber = Math.floor(Math.random() * allNames.length);
-
-    randomNames.push(allNames[arrayNumber]);
-
-    allNames.splice(arrayNumber, 1);
-  }
-
-  console.log(randomNames);
-
-  for (var j = 0; j < randomNames.length; j++) {
-    if (j != (randomNames.length - 1) ) {
-      console.log(randomNames[j] + "-" + randomNames[j + 1]);
-    } else {
-      console.log(randomNames[j] + "-" + randomNames[0]);
-    }
-  }
-
-  sendMail();
+var canvas = document.getElementById("board");
+var context = canvas.getContext("2d");
+var size = 50;
+var sizeOfSquares = 25;
+var ant = {
+  x: size/2,
+  y: size/2,
+  dir: 0
 };
 
+var board = [];
 
-function sendMail() {
-  for (var k = 0; k < randomNames.length; k++) {
-    if (k != (randomNames.length - 1) ) {
-        emailjs.send("default_service","secret_santa",{
-        email: randomNames[k], 
-        bodyText: randomNames[k + 1]
-      });
-    } else {
-      emailjs.send("default_service","secret_santa",{
-        email: randomNames[k], 
-        bodyText: randomNames[0]
-      });
+function startUp() {
+  // for (var i = 0; i < board.length; i++) {
+  //   for (var n = 0; n < board.length; n++) {
+  //     board[i][n] = false;
+  //   }
+  // }
+
+  for (var j = 0; j < size; j++) {
+    var tempArray = [];
+    for (var m = 0; m < size; m++) {
+      tempArray.push(false);
+    }
+    board.push(tempArray);
+  }
+  draw();
+}
+
+function draw() {
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+
+  for (var i = 0; i < board.length; i++) {
+    for (var n = 0; n < board.length; n++) {
+      if (board[i][n]) {
+        context.fillStyle = "red";
+      } else {
+        context.fillStyle = "blue";
+      }
+      context.fillRect(i * (sizeOfSquares + 5), n * (sizeOfSquares + 5), sizeOfSquares, sizeOfSquares);
     }
   }
+  console.log(board);
+  console.log(ant);
 
-  console.log("Sent!");
-  displaySent();
-    
+  if (!board[ant.y][ant.x]) {
+    ant.dir += 90;
+  } else {
+    ant.dir -= 90;
+  }
+
+  ant.dir %= 360;
+  ant.dir = Math.abs(ant.dir);
+  board[ant.y][ant.x] = !board[ant.y][ant.x];
+
+  if (ant.dir == 0) {
+    ant.y--;
+  } else if (ant.dir == 90) {
+    ant.x++;
+  } else if (ant.dir == 180) {
+    ant.y++;
+  } else {
+    ant.x--;
+  }
+
+  console.log(board);
+  console.log(ant);
+
+  if (ant.x >= 0 && ant.y >= 0 && ant.x <= board.length && ant.y <= board.length) {
+    setTimeout(draw, 1);
+  }
 }
 
-
-function displaySent() {
-  $("button").remove();
-  $("body").append("<br/><h1 font-family = 'Verdana' style = 'text-align:center'>Sent!</h1>")
-}
-
-
-$(document).ready(function() {
-
-  $("#numberOfPeopleButton").click(function() {
-    do {
-      amountOfPeople = prompt("How many people are participating?");
-    } while (amountOfPeople <= 0 || amountOfPeople > 20 || isNaN(amountOfPeople))
-
-    for (var i = 1; i <= amountOfPeople; i++) {
-        $("body").append("<br/><div>Person " + i + "\'s email: <input id = 'text" + i + "' type = 'text' align = 'center'/></div><br/><br/>")
-    }
-
-    $("button").remove();
-    $("body").append("<br/><br/><button id = 'enterButton' type = 'button' align = 'center' onclick='enterButton()'>Enter</button>")
-  });
-});
+startUp();
